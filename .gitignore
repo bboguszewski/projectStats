@@ -1,0 +1,10 @@
+# system related files
+.idea
+.DS_Store
+# python virtual environment
+venv
+# configuration file
+.env
+# output data
+data.csv
+data2.csv
