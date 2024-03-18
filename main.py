@@ -9,8 +9,14 @@ load_dotenv()
 datetime_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 jira = JIRA(options={'server': os.getenv('AUTH_SERVER')}, basic_auth=(os.getenv('AUTH_EMAIL'), os.getenv('AUTH_TOKEN')))
+
 statusesBeg = os.getenv('STATUSES_BEG').split(';')
+for x in range(len(statusesBeg)):
+    statusesBeg[x] = str.lower(statusesBeg[x])
+
 statusesEnd = os.getenv('STATUSES_END').split(';')
+for x in range(len(statusesEnd)):
+    statusesEnd[x] = str.lower(statusesEnd[x])
 
 class HistoryItem:
 
@@ -21,8 +27,9 @@ class HistoryItem:
         self.duration = duration
 
 
+counter = 0
 searchLoop = True
-maxResults = 15
+maxResults = 25
 startAt = 0
 issues = []
 while searchLoop:
@@ -30,17 +37,19 @@ while searchLoop:
     searchLoop = len(search) > 0
     issues = issues + search
     startAt += maxResults
+    # show number, debug only
+    counter = counter + maxResults
+    print(counter)
 
 
 def calculate_history(issue):
     print(issue)
 
-
 # Find the first status indicated that work has started
 def find_first_work(status_change):
     if len(status_change) > 1:
         for x in range(len(status_change)):
-            if status_change[x].name in statusesBeg:
+            if str.lower(status_change[x].name) in statusesBeg:
                 return x
         return -1
     return -1
@@ -52,7 +61,7 @@ def find_first_work(status_change):
 # the correct status should be second 'Ready to Release'
 def find_last_done(status_change: []):
     for x in reversed(range(len(status_change))):
-        if status_change[x].name in statusesEnd:
+        if str.lower(status_change[x].name) in statusesEnd:
             return x
     return -1
 
@@ -69,8 +78,6 @@ for issue in issues:
                 duration = (datetime.strptime(history.created, datetime_format) - date).total_seconds()
                 date = datetime.strptime(history.created, datetime_format)
                 status_change.append(HistoryItem(getattr(item, 'from'), item.fromString, date, duration))
-            # if item.field == "Sprint":
-            #     status_change.append(HistoryItem(getattr(item, 'from'), item.fromString, date))
 
     status_change.append(HistoryItem(issue.fields.status.id, issue.fields.status.name, date, -1))
 
@@ -86,8 +93,7 @@ for issue in issues:
             end_date = status_change[x].date
 
         cycle_time = cycle_time / 3600
-        print(issue.key + ' ' + issue.fields.status.name + ' ' + end_date.strftime(
-            "%Y/%m/%d %H:%M") + ' ' + cycle_time.__str__())
+        # print(issue.key + ' ' + issue.fields.status.name + ' ' + end_date.strftime("%Y/%m/%d %H:%M") + ' ' + cycle_time.__str__())
         output.append([
             issue.key,
             issue.fields.status.name,

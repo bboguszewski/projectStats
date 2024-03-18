@@ -6,5 +6,4 @@ venv
 # configuration file
 .env
 # output data
-data.csv
-data2.csv
+*.csv
