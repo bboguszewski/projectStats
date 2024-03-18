@@ -18,6 +18,7 @@ statusesEnd = os.getenv('STATUSES_END').split(';')
 for x in range(len(statusesEnd)):
     statusesEnd[x] = str.lower(statusesEnd[x])
 
+
 class HistoryItem:
 
     def __init__(self, id, name, date, duration):
@@ -29,8 +30,8 @@ class HistoryItem:
 
 counter = 0
 searchLoop = True
-maxResults = 25
-startAt = 0
+maxResults = int(os.getenv('SEARCH_BATCH'))
+startAt = int(os.getenv('SEARCH_FROM'))
 issues = []
 while searchLoop:
     search = jira.search_issues(os.getenv('FILTER'), expand='changelog', maxResults=maxResults, startAt=startAt)
@@ -38,7 +39,7 @@ while searchLoop:
     issues = issues + search
     startAt += maxResults
     # show number, debug only
-    counter = counter + maxResults
+    counter += maxResults
     print(counter)
 
 
@@ -68,6 +69,7 @@ def find_last_done(status_change: []):
 output = []
 items = []
 counter = 0
+counterFailed = 0
 for issue in issues:
     status_change = []
     date = datetime.strptime(issue.fields.created, datetime_format)
@@ -105,11 +107,14 @@ for issue in issues:
 
     else:
         print(issue.key + ' ' + issue.fields.status.name)
+        counterFailed += 1
 
     items.append([
         issue.key,
         issue.fields.status.name
     ]);
+
+print("items calculated: " + counter.__str__() + " items failed: " + counterFailed.__str__())
 
 # Export data to csv file
 with open('data.csv', mode='w') as data_file:
