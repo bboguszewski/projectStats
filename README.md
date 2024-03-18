@@ -10,11 +10,13 @@ pip install datetime
 # Configuration
 This script requires some data to be provided before it can be executed:
 
-| config name  | description           | example                                      |
-|--------------|:----------------------|----------------------------------------------|
-| AUTH_SERVER  | JIRA server address   | https://example.atlassian.net                |
-| AUTH_EMAIL   | User's e-mail address | address@mail.com                             |
-| AUTH_TOKEN   | User's token          | token-for-JIRA-taht-is-very-very-long-string |
-| FILTER       |                       | issuetype in (Story, Task, Bug)              |
-| STATUSES_BEG |                       | In Progress                                  |
-| STATUSES_END |                       | Done;Close                                   |
+| config name  | description                                                 | example                                      |
+|--------------|:------------------------------------------------------------|----------------------------------------------|
+| AUTH_SERVER  | JIRA server address                                         | https://example.atlassian.net                |
+| AUTH_EMAIL   | User's e-mail address                                       | address@mail.com                             |
+| AUTH_TOKEN   | User's token                                                | token-for-JIRA-taht-is-very-very-long-string |
+| FILTER       |                                                             | issuetype in (Story, Task, Bug)              |
+| STATUSES_BEG |                                                             | In Progress                                  |
+| STATUSES_END |                                                             | Done;Close                                   |
+| SEARCH_BATCH | Define how many items it fetch by each request (max result) | 25                                           |
+| SEARCH_FROM  | Define from which item it fetch (start at)                  | 0                                            |
