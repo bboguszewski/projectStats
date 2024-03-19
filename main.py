@@ -39,7 +39,7 @@ while searchLoop:
     issues = issues + search
     startAt += maxResults
     # show number, debug only
-    counter += maxResults
+    counter += len(search)
     print(counter)
 
 
