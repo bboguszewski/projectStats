@@ -9,8 +9,6 @@ load_dotenv()
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
-# jira = JIRA(options={'server': os.getenv('AUTH_SERVER')}, basic_auth=(os.getenv('AUTH_EMAIL'), os.getenv('AUTH_TOKEN')))
-
 statusesBeg = os.getenv('STATUSES_BEG').split(';')
 for x in range(len(statusesBeg)):
     statusesBeg[x] = str.lower(statusesBeg[x])
@@ -27,21 +25,6 @@ class HistoryItem:
         self.name = name
         self.date = date
         self.duration = duration
-
-
-# counter = 0
-# searchLoop = True
-# maxResults = int(os.getenv('SEARCH_BATCH'))
-# startAt = int(os.getenv('SEARCH_FROM'))
-# issues = []
-# while searchLoop:
-#     search = jira.search_issues(os.getenv('FILTER'), expand='changelog', maxResults=maxResults, startAt=startAt)
-#     searchLoop = len(search) > 0
-#     issues = issues + search
-#     startAt += maxResults
-#     # show number, debug only
-#     counter += len(search)
-#     print(counter)
 
 search = JiraSearch(
     jira_server=os.getenv('AUTH_SERVER'),
