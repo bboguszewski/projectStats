@@ -3,6 +3,7 @@
 .DS_Store
 # python virtual environment
 venv
+*/__pycache__
 # configuration file
 .env
 # output data

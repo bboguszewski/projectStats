@@ -1,14 +1,15 @@
 import os
 import csv
 from dotenv import load_dotenv
-from jira.client import JIRA
 from datetime import datetime
+from src.jira_search import JiraSearch
+
 
 load_dotenv()
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%f%z'
 
-jira = JIRA(options={'server': os.getenv('AUTH_SERVER')}, basic_auth=(os.getenv('AUTH_EMAIL'), os.getenv('AUTH_TOKEN')))
+# jira = JIRA(options={'server': os.getenv('AUTH_SERVER')}, basic_auth=(os.getenv('AUTH_EMAIL'), os.getenv('AUTH_TOKEN')))
 
 statusesBeg = os.getenv('STATUSES_BEG').split(';')
 for x in range(len(statusesBeg)):
@@ -28,25 +29,32 @@ class HistoryItem:
         self.duration = duration
 
 
-counter = 0
-searchLoop = True
-maxResults = int(os.getenv('SEARCH_BATCH'))
-startAt = int(os.getenv('SEARCH_FROM'))
-issues = []
-while searchLoop:
-    search = jira.search_issues(os.getenv('FILTER'), expand='changelog', maxResults=maxResults, startAt=startAt)
-    searchLoop = len(search) > 0
-    issues = issues + search
-    startAt += maxResults
-    # show number, debug only
-    counter += len(search)
-    print(counter)
+# counter = 0
+# searchLoop = True
+# maxResults = int(os.getenv('SEARCH_BATCH'))
+# startAt = int(os.getenv('SEARCH_FROM'))
+# issues = []
+# while searchLoop:
+#     search = jira.search_issues(os.getenv('FILTER'), expand='changelog', maxResults=maxResults, startAt=startAt)
+#     searchLoop = len(search) > 0
+#     issues = issues + search
+#     startAt += maxResults
+#     # show number, debug only
+#     counter += len(search)
+#     print(counter)
+
+search = JiraSearch(
+    jira_server=os.getenv('AUTH_SERVER'),
+    jira_mail=os.getenv('AUTH_EMAIL'),
+    jira_token=os.getenv('AUTH_TOKEN')
+)
+issues = search.get_issues(jql=os.getenv('FILTER'), batch_size=int(os.getenv('SEARCH_BATCH')), start_at=int(os.getenv('SEARCH_FROM')))
 
 
 def calculate_history(issue):
     print(issue)
 
-# Find the first status indicated that work has started
+# Find the first status that indicates work has started
 def find_first_work(status_change):
     if len(status_change) > 1:
         for x in range(len(status_change)):
@@ -56,8 +64,8 @@ def find_first_work(status_change):
     return -1
 
 
-# Find the last status indicated that work has finished
-# In case we have following status changes for a given tasks:
+# Find the last status that indicates work has finished
+# In case we have the following status changes for a given task:
 # 'To Do' -> 'In Progress' -> 'Ready to Release' -> 'In Progress' -> 'Ready to Release' -> 'Released'
 # the correct status should be second 'Ready to Release'
 def find_last_done(status_change: []):
@@ -95,15 +103,23 @@ for issue in issues:
             end_date = status_change[x].date
 
         cycle_time = cycle_time / 3600
-        # print(issue.key + ' ' + issue.fields.status.name + ' ' + end_date.strftime("%Y/%m/%d %H:%M") + ' ' + cycle_time.__str__())
-        output.append([
+        print(issue.key + ' ' + issue.fields.status.name + ' ' + end_date.strftime("%Y/%m/%d %H:%M") + ' ' + cycle_time.__str__())
+        output_row = [
             issue.key,
             issue.fields.status.name,
             end_date.strftime("%Y/%m/%d %H:%M"),
             cycle_time.__str__().replace('.', ','),
-            issue.fields.issuetype.name,
-            issue.fields.customfield_10026.__str__().replace('.', ',')
-        ])
+            issue.fields.issuetype.name
+        ]
+
+        # Add check for customfield_10026
+        if hasattr(issue.fields, 'customfield_10026') and issue.fields.customfield_10026 is not None:
+            output_row.append(issue.fields.customfield_10026.__str__().replace('.', ','))
+        else:
+            output_row.append('')  # Add
+
+        output.append(output_row)
+
 
     else:
         print(issue.key + ' ' + issue.fields.status.name)
