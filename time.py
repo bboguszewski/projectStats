@@ -73,7 +73,7 @@ if results:
     headers = ['Issue Key', 'Issue Type', 'Current Status', 'Summary'] + sorted(list(statuses))
 
     # Write to CSV
-    with open('time.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+    with open('time-01.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
         writer = csv.DictWriter(csvfile,
                                 fieldnames=headers,
                                 delimiter=';',

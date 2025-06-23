@@ -116,12 +116,12 @@ for issue in issues:
 print("items calculated: " + counter.__str__() + " items failed: " + counterFailed.__str__())
 
 # Export data to csv file
-with open('data.csv', mode='w') as data_file:
+with open('main-01.csv', mode='w') as data_file:
     data_file = csv.writer(data_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     for d in output:
         data_file.writerow(d)
 
-with open('data2.csv', mode='w') as data_file:
+with open('main-02.csv', mode='w') as data_file:
     data_file = csv.writer(data_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     for d in items:
         data_file.writerow(d)
